@@ -1,100 +1,71 @@
-import faunadb from "faunadb";
+import { Client, fql } from 'fauna';
+import type { NextApiRequest, NextApiResponse } from 'next';
 import Pusher from "pusher";
 
-import { client } from "../../lib/db";
-
-const { Get, Match, Index, Update, Create, Collection } = faunadb.query;
+const client = new Client({
+  secret: process.env.FAUNADB_STATIC_FUN_KEY
+});
 
 const {
-  PUSHER_APP_ID: appId,
-  PUSHER_APP_KEY: key,
-  PUSHER_APP_SECRET: secret
+  NEXT_PUBLIC_PUSHER_APP_ID: appId,
+  NEXT_PUBLIC_PUSHER_KEY: key,
+  NEXT_PUBLIC_PUSHER_SECRET: secret,
+  NEXT_PUBLIC_PUSHER_CLUSTER: cluster
 } = process.env;
 
 const pusher = new Pusher({
   appId,
   key,
   secret,
-  cluster: "us2"
+  cluster
 });
 
-export default async (req, res) => {
-  let {
-    cookies: { token },
-    body: { email, html },
-    headers: { host }
-  } = req;
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  // Get page name from subdomain
+  const isDev = req.headers.host?.includes("localhost");
+  const splitHost = req.headers.host?.split(".") || [];
+  const page = isDev ? splitHost[0] : splitHost[0];
+  const { html } = req.body;
 
-  const sessionId = token;
-
-  // parse page information from host
-
-  let isDev = host.includes("localhost");
-  let splitHost = host.split(".");
-
-  if ((!isDev && splitHost.length === 3) || (isDev && splitHost.length === 2)) {
-    let page = splitHost[0];
-    // check to see if page exists in db
-    try {
-      const {
-        data: { sessionId: savedPageSessionId },
-        ref
-      } = (await client.query(Get(Match(Index("ref_by_name"), page)))) as any;
-
-      if (sessionId === savedPageSessionId) {
-        await client.query(
-          Update(ref, {
-            data: {
-              html,
-              email
-            }
-          })
-        );
-      }
-
-      try {
-        console.log(`hydrating html for ${page}.static.fun`);
-        await new Promise((resolve, reject) => {
-          pusher.trigger(page, "hydrate-html", html, err => {
-            if (err) return reject(err);
-            resolve();
-          });
-        });
-      } catch (e) {
-        console.log({ message: e.message });
-      }
-
-      res.setHeader("Set-Cookie", `token=${token}`);
-      res.status(200).json({ editLink: `${req.headers.host}/?edit=${token}'` });
-      return;
-    } catch (e) {
-      if (e.name === "NotFound") {
-        try {
-          await client.query(
-            Create(Collection("pages"), {
-              data: {
-                sessionId,
-                html,
-                email,
-                name: page
-              }
-            })
-          );
-          res.setHeader("Set-Cookie", `token=${token}`);
-          res
-            .status(200)
-            .json({ editLink: `${req.headers.host}/?edit=${token}'` });
-          return;
-        } catch (e) {
-          console.error(new Error(e.message));
-          res.status(500).json({ stack: e.stack, message: e.message });
-          return;
-        }
-      } else {
-        console.error(new Error(e.message));
-        res.status(500).json({ stack: e.stack, message: e.message });
-        return;
-      }
-    }
+  // Validate required fields
+  if (!page) {
+    res.status(400).json({ message: "No page specified" });
+    return;
   }
-};
+
+  if (html === undefined) {
+    res.status(400).json({ message: "No HTML content provided" });
+    return;
+  }
+
+  try {
+    // Simple upsert - create or update the page
+    await client.query(fql`
+      let existingPage = pages.firstWhere(.name == ${page})
+      if (existingPage == null) {
+        pages.create({
+          name: ${page},
+          html: ${html || ""}  // Default to empty string if null/undefined
+        })
+      } else {
+        existingPage!.update({ 
+          html: ${html || ""}  // Default to empty string if null/undefined
+        })
+      }
+    `);
+
+    // Notify other clients of the update
+    await pusher.trigger(page, "hydrate-html", html || "");
+
+    res.status(200).json({ message: "Saved" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ 
+      message: "Error saving page",
+      error: error instanceof Error ? error.message : String(error)
+    });
+  }
+}

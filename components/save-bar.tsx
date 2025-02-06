@@ -3,57 +3,52 @@ import { useState, useEffect } from "react";
 import Button from "./button";
 import ms from "ms";
 
+interface SaveBarProps {
+  html: string;
+  saveState: 'SAVING' | 'ERROR' | 'SUCCESS' | 'DEFAULT';
+  setSaveState: React.Dispatch<React.SetStateAction<'SAVING' | 'ERROR' | 'SUCCESS' | 'DEFAULT'>>;
+  onSave: (html: string) => Promise<boolean>;
+}
+
 export default function SaveBar({
-  setDialogOpen,
   html,
   saveState,
   setSaveState,
-  showEditLink,
-  setShowEditLink
-}) {
-  const [lastSaved, setLastSaved] = useState();
-  const [currentTime, setCurrentTime] = useState();
-  const [currentTimeInterval, setCurrentTimeInterval] = useState();
+  onSave
+}: SaveBarProps) {
+  const [lastSaved, setLastSaved] = useState<number | undefined>(undefined);
+  const [currentTime, setCurrentTime] = useState<number | undefined>(undefined);
+  const [currentTimeInterval, setCurrentTimeInterval] = useState<NodeJS.Timeout | undefined>(undefined);
 
   async function savePage() {
-    console.log("saving page");
+    console.log("Saving page with HTML:", html);
     setSaveState("SAVING");
     try {
-      const res = await fetch("/api/save-page", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ html })
-      });
-      if (res.ok) {
+      const success = await onSave(html);
+      if (success) {
         setSaveState("SUCCESS");
-        if (!showEditLink) {
-          setShowEditLink(true);
-          setDialogOpen(true);
-        }
         setLastSaved(Date.now());
+      } else {
+        setSaveState("ERROR");
       }
-    } catch ({ name, message }) {
+    } catch (error) {
+      console.error("Save error:", error);
       setSaveState("ERROR");
-      console.error(`${name}: ${message}`);
     }
   }
 
   useEffect(() => {
     if (lastSaved) {
       setCurrentTime(Date.now());
-      setCurrentTimeInterval(
-        setInterval(() => {
-          setCurrentTime(Date.now());
-        }, 10000)
-      );
+      const interval = setInterval(() => {
+        setCurrentTime(Date.now());
+      }, 10000);
+      setCurrentTimeInterval(interval);
+
+      return () => {
+        clearInterval(interval);
+      };
     }
-    return () => {
-      if (currentTimeInterval) {
-        clearInterval(currentTimeInterval);
-      }
-    };
   }, [lastSaved]);
 
   function renderButton() {
@@ -119,17 +114,6 @@ export default function SaveBar({
     <div className="save-bar-container">
       <p className="last-saved">{renderLastSaved()}</p>
       <div className="edit-link-and-save">
-        {showEditLink && (
-          <p
-            className="edit-link"
-            onClick={() => {
-              console.log("opening dialog");
-              setDialogOpen(true);
-            }}
-          >
-            🔏 EDIT LINK
-          </p>
-        )}
         {renderButton()}
       </div>
       <style jsx>{`

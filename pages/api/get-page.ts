@@ -1,75 +1,41 @@
-import faunadb from "faunadb";
-import uid from "uid-promise";
+import { Client, fql } from 'fauna';
+import type { NextApiRequest, NextApiResponse } from 'next';
 
-import { client } from "../../lib/db";
+const client = new Client({
+  secret: process.env.FAUNADB_STATIC_FUN_KEY
+});
 
-const { Get, Match, Index } = faunadb.query;
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse
+) {
+  // Get page name from subdomain
+  const isDev = req.headers.host?.includes("localhost");
+  const splitHost = req.headers.host?.split(".") || [];
+  const page = isDev ? splitHost[0] : splitHost[0];
 
-export default async (req, res) => {
-  let {
-    query: { page },
-    cookies: { token, linkToken }
-  } = req;
+  console.log('Host:', req.headers.host);
+  console.log('Page name:', page);
 
   if (!page) {
-    res.status(400).json({ message: "Bad Request: provide a page to query" });
+    res.status(400).json({ message: "No page specified" });
     return;
-  }
-
-  if (page === "www") {
-    res.status(200).json({ html: null });
-    return;
-  }
-
-  let sessionId;
-
-  if (linkToken) {
-    sessionId = linkToken;
-    res.setHeader("Set-Cookie", `token=${linkToken}`);
-  } else if (token && !linkToken) {
-    sessionId = token;
-    res.setHeader("Set-Cookie", `token=${token}`);
-  } else {
-    try {
-      sessionId = await uid(10);
-      token = sessionId;
-      res.setHeader("Set-Cookie", `token=${token}`);
-    } catch (e) {
-      console.error({ stack: e.stack, message: e.message });
-      res.status(500).json({ stack: e.stack, message: e.message });
-      return;
-    }
   }
 
   try {
-    let {
-      data: { sessionId: savedPageSessionId, html }
-    } = (await client.query(Get(Match(Index("ref_by_name"), page)))) as any;
+    const result = await client.query(fql`
+      pages.firstWhere(.name == ${page})
+    `) as any;
 
-    if (savedPageSessionId === sessionId) {
-      res.status(200).json({ html, allowEdit: true, token });
-      return;
-    } else {
-      res.status(200).json({ html, allowEdit: false, token });
-      return;
-    }
+    console.log('Query result:', result);
+
+    // The HTML is in result.data.html
+    res.status(200).json({ 
+      html: result?.data?.html || null,
+      allowEdit: true
+    });
   } catch (error) {
-    if (error.name === "NotFound") {
-      res.status(404).json({ html: null, token });
-      return;
-    }
-
-    if (error.syscall === "getaddrinfo") {
-      res.status(500).json({
-        stack: error.stack,
-        message:
-          "There was a network error, please check connection and try again"
-      });
-      return;
-    } else {
-      console.error({ error });
-      res.status(500).json({ stack: error.stack, message: error.message });
-      return;
-    }
+    console.error('Error details:', error);
+    res.status(500).json({ message: "Error getting page" });
   }
-};
+}

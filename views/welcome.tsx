@@ -6,39 +6,35 @@ import Button from "../components/button";
 import Input from "../components/input";
 import TopBar from "../components/top-bar";
 
+interface PageExists {
+  name: string;
+}
+
+type SearchState = "SEARCHING" | "ERROR" | "NETWORK_ERROR" | "";
+
 export function Welcome() {
   const [pageToSearch, setPageToSearch] = useState("");
-  const [pageExists, setPageExists] = useState();
-  const [searchState, setSearchState] = useState("");
-  const [errorMessage, setErrorMessage] = useState();
+  const [pageExists, setPageExists] = useState<PageExists | null>(null);
+  const [searchState, setSearchState] = useState<SearchState>("");
+  const [errorMessage, setErrorMessage] = useState<string>();
 
-  async function checkIfPageExists(e) {
+  async function checkIfPageExists(e: React.FormEvent) {
     e.preventDefault();
     if (pageToSearch) {
       setSearchState("SEARCHING");
       try {
         let res = await fetch(`/api/get-page?page=${pageToSearch}`);
-        if (res.status === 200) {
-          setSearchState("ERROR");
-          setPageExists({ name: `${pageToSearch}.static.fun` });
-          return;
-        }
-        if (res.status === 404) {
-          window.location.href = `https://${pageToSearch}.static.fun`;
-        } else {
-          let { message, stack } = await res.json();
-          throw new Error(message);
-        }
+        window.location.href = `https://${pageToSearch}.freecast.xyz`;
       } catch (e) {
         console.log(e.message);
-        setErrorMessage(e.message);
+        setErrorMessage(e instanceof Error ? e.message : String(e));
         setSearchState("NETWORK_ERROR");
         return;
       }
     }
   }
 
-  function pageSearchInputHandler(e) {
+  function pageSearchInputHandler(e: React.ChangeEvent<HTMLInputElement>) {
     if (searchState) {
       setSearchState("");
       setPageExists(null);
@@ -54,28 +50,24 @@ export function Welcome() {
             ⏳
           </Button>
         );
-        break;
       case "ERROR":
         return (
           <Button bg="#f3424d" disabled fontSize={32}>
             →
           </Button>
         );
-        break;
       case "NETWORK_ERROR":
         return (
           <Button bg="#000000" onClick={checkIfPageExists} fontSize={24}>
             ❌
           </Button>
         );
-        break;
       default:
         return (
           <Button bg="#9b51e0" onClick={checkIfPageExists} fontSize={32}>
             →
           </Button>
         );
-        break;
     }
   }
 
@@ -140,10 +132,6 @@ export function Welcome() {
             FaunaDB
           </a>
           ,{" "}
-          <a href="https://sendgrid.com" target="_blank">
-            Twilio Sendgrid
-          </a>
-          ,
           <a href="https://pusher.com/channels" target="_blank">
             Pusher Channels
           </a>

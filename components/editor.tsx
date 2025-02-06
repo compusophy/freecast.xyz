@@ -3,26 +3,21 @@ import { useEffect, useRef, useState } from "react";
 import EditLinkModal from "./edit-link-modal";
 import SaveBar from "./save-bar";
 
-export default function EditorContainer({ html, email, editLink }) {
+interface EditorContainerProps {
+  html: string;
+  onSave: (html: string) => Promise<boolean>;
+}
+
+export default function EditorContainer({ html, onSave }: EditorContainerProps) {
   const [_html, setHtml] = useState(html || "");
-  const [_email, setEmail] = useState(email);
-  const [dialogOpen, setDialogOpen] = useState(false);
 
   return (
     <div className="root-editor-container">
-      <EditLinkModal
-        dialogOpen={dialogOpen}
-        setDialogOpen={setDialogOpen}
-        email={_email}
-        setEmail={setEmail}
-        editLink={editLink}
-      />
       <div className="editor-container">
         <Editor
           html={_html}
-          email={_email}
           setHtml={setHtml}
-          setDialogOpen={setDialogOpen}
+          onSave={onSave}
         />
       </div>
       <div className="output-container">
@@ -40,7 +35,7 @@ export default function EditorContainer({ html, email, editLink }) {
           height: 100%;
           width: 100%;
           flex: 1 0 50%;
-          background: #22222;
+          background: #222222;
         }
         .output-container {
           flex: 1 0 50%;
@@ -70,25 +65,30 @@ export default function EditorContainer({ html, email, editLink }) {
   );
 }
 
-function Editor({ html, email, setHtml, setDialogOpen }) {
-  const [saveState, setSaveState] = useState();
-  const [showEditLink, setShowEditLink] = useState(false);
+interface EditorProps {
+  html: string;
+  setHtml: (html: string) => void;
+  onSave: (html: string) => Promise<boolean>;
+}
 
-  function onChange(e) {
+function Editor({ html, setHtml, onSave }: EditorProps) {
+  const [saveState, setSaveState] = useState<'SAVING' | 'ERROR' | 'SUCCESS' | 'DEFAULT'>('DEFAULT');
+
+  function onChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
+    console.log("Editor content changed:", e.target.value);
     setHtml(e.target.value);
     if (saveState === "SUCCESS") {
       setSaveState("DEFAULT");
     }
   }
+
   return (
     <div>
       <SaveBar
-        setDialogOpen={setDialogOpen}
         html={html}
         saveState={saveState}
         setSaveState={setSaveState}
-        showEditLink={showEditLink}
-        setShowEditLink={setShowEditLink}
+        onSave={onSave}
       />
       <textarea value={html} onChange={onChange} spellCheck={false} />
       <style jsx>{`
@@ -126,17 +126,22 @@ function Editor({ html, email, setHtml, setDialogOpen }) {
   );
 }
 
-function OutputContainer({ content }) {
-  const iframeRef = useRef<HTMLIFrameElement>();
+interface OutputContainerProps {
+  content: string;
+}
+
+function OutputContainer({ content }: OutputContainerProps) {
+  const iframeRef = useRef<HTMLIFrameElement>(null);
 
   useEffect(() => {
     updateIframe();
   }, [content]);
 
   function updateIframe() {
-    const document = iframeRef.current.contentDocument;
-    const head = document.getElementsByTagName("head")[0];
-    document.body.innerHTML = content || "";
+    const document = iframeRef.current?.contentDocument;
+    if (document) {
+      document.body.innerHTML = content || "";
+    }
   }
 
   return (

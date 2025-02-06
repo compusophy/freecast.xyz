@@ -22,7 +22,7 @@ export function RenderStaticLayout({ html }) {
       pageName = splitHost[0];
       if (pageName) {
         const pusher = new Pusher(process.env.PUSHER_APP_KEY, {
-          cluster: "us2"
+          cluster: "mt1"
         });
         const channel = pusher.subscribe(pageName);
         channel.bind("hydrate-html", hydrateHtml);

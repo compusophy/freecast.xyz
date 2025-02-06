@@ -9,15 +9,39 @@ import { RenderStaticLayout } from "../views/static-layout";
 import { Welcome } from "../views/welcome";
 
 export default function IndexPage() {
-  const [pageData, setPageData] = useState();
-  const [email, setEmail] = useState();
-  const [error, setError] = useState();
+  const [pageData, setPageData] = useState<any>();
+  const [error, setError] = useState<any>();
   const router = useRouter();
 
-  useEffect(() => {
-    console.log("🦄 https://vercel.com/blog/wildcard-domains");
-    let href = window.location.href;
+  const savePage = async (html: string) => {
+    try {
+      const response = await fetch('/api/save-page', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ html })
+      });
+      
+      if (!response.ok) {
+        throw new Error('Failed to save page');
+      }
+      
+      // Update local state after successful save
+      setPageData(prev => ({
+        ...prev,
+        html
+      }));
+      
+      return true;
+    } catch (error) {
+      console.error('Save error:', error);
+      return false;
+    }
+  };
 
+  useEffect(() => {
+    let href = window.location.href;
     let linkToken = router.query.edit;
 
     if (linkToken) {
@@ -45,21 +69,15 @@ export default function IndexPage() {
           setError({ message: e.message, stack: e.stack });
         });
     }
-    return () => {};
-  }, [pageData]);
-
-  useEffect(() => {
-    let storedEmail = localStorage.getItem("email");
-    if (storedEmail) setEmail(storedEmail);
-  }, []);
+  }, [pageData, router.query.edit]);
 
   if (error) {
     return (
       <FixedCenterLayout>
         <div>
-          {error.errorCode && <h1>HTTP Status: {pageData.errorCode}</h1>}
+          {error.errorCode && <h1>HTTP Status: {error.errorCode}</h1>}
           <h2>{error.message}</h2>
-          <img src="https://media.giphy.com/media/953Nn3kYUbGxO/giphy.gif" />
+          <img src="https://media.giphy.com/media/953Nn3kYUbGxO/giphy.gif" alt="Error gif" />
           {error.stack && (
             <div>
               <code>{JSON.stringify(error.stack)}</code>
@@ -93,8 +111,7 @@ export default function IndexPage() {
     return (
       <EditorLayout
         html={defaultMarkup}
-        email={email}
-        editLink={pageData.editLink}
+        onSave={savePage}
       />
     );
   }
@@ -103,8 +120,7 @@ export default function IndexPage() {
     return (
       <EditorLayout
         html={pageData.html}
-        email={email}
-        editLink={pageData.editLink}
+        onSave={savePage}
       />
     );
   }

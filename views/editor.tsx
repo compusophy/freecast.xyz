@@ -4,7 +4,12 @@ import Div100vh from "react-div-100vh";
 import EditorContainer from "../components/editor";
 import TopBar from "../components/top-bar";
 
-export function EditorLayout({ html, email, editLink }) {
+interface EditorLayoutProps {
+  html: string;
+  onSave: (html: string) => Promise<boolean>;
+}
+
+export function EditorLayout({ html, onSave }: EditorLayoutProps) {
   return (
     <Div100vh>
       <Head>
@@ -12,7 +17,7 @@ export function EditorLayout({ html, email, editLink }) {
         <link rel="icon" href="/favicon.ico" type="image/x-icon" />
       </Head>
       <TopBar info />
-      <EditorContainer html={html} email={email} editLink={editLink} />
+      <EditorContainer html={html} onSave={onSave} />
     </Div100vh>
   );
 }
