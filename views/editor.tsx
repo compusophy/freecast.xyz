@@ -1,4 +1,3 @@
-import Head from "next/head";
 import Div100vh from "react-div-100vh";
 
 import EditorContainer from "../components/editor";
@@ -12,10 +11,6 @@ interface EditorLayoutProps {
 export function EditorLayout({ html, onSave }: EditorLayoutProps) {
   return (
     <Div100vh>
-      <Head>
-        <title>Static Fun</title>
-        <link rel="icon" href="/favicon.ico" type="image/x-icon" />
-      </Head>
       <TopBar/>
       <EditorContainer html={html} onSave={onSave} />
     </Div100vh>

@@ -1,23 +1,50 @@
-export async function GET() {
-  const appUrl = "https://freecast.xyz";
+export async function GET(request: Request) {
+  // Get the host from the request headers
+  const host = request.headers.get('host') || 'freecast.xyz';
+  
+  // Strip any existing subdomain for the base domain
+  const baseDomain = host.split('.').slice(-2).join('.');
+  
+  // Extract subdomain
+  const parts = host.split('.');
+  const subdomain = parts.length > (host.includes('localhost') ? 1 : 2) ? parts[0] : '';
+  
+  // Use https protocol for production, http for localhost
+  const protocol = host.includes('localhost') ? 'http' : 'https';
+  
+  // For homeUrl, use the path-based URL
+  const baseUrl = `${protocol}://${baseDomain}`;
+  const pathBasedUrl = subdomain ? `${baseUrl}/${subdomain}` : baseUrl;
 
   const config = {
-    accountAssociation: {
-      header: "eyJmaWQiOjM1MDkxMSwidHlwZSI6ImN1c3RvZHkiLCJrZXkiOiIweDJGREVmM0Y0NzBlQ2QyQmM5YTk3NzU2OEM0M0FEMzg2MGMxNjExRDgifQ",
-      payload: "eyJkb21haW4iOiJmcmVlY2FzdC54eXoifQ",
-      signature: "MHhhMjkyMWM0MzQ2OWE0NzczODhjYjIyOTFiYmYxNGU4NWY0NjgwMmYzMTBhNDM2ZjdmMjc3YWZhMmUwZDQxNDU2N2JiNmM3NTgxMTVhOWNmY2ViNjM1N2Q4NzhhNTk2ZmFlZGYyZTQyYTQxOWVlNWYwY2U5YmNlZTIxZDFmM2EwZDFi"
-    },
+    // Use special account association for test subdomain
+    ...(subdomain === 'test' && {
+      accountAssociation: {
+        header: "",
+        payload: "",
+        signature: ""
+      }
+    }),
+    // Default account association for other subdomains
+    ...(subdomain !== 'test' && {
+      accountAssociation: {
+        header: "",
+        payload: "",
+        signature: ""
+      }
+    }),
 
     frame: {
       version: "1",
       name: "freecast",
-      iconUrl: `${appUrl}/icon.png`,
-      homeUrl: appUrl,
-      imageUrl: `${appUrl}/opengraph-image.png`,
+      iconUrl: `${baseUrl}/icon.png`,
+      homeUrl: pathBasedUrl,
+      imageUrl: `${baseUrl}/opengraph-image.png`,
       buttonTitle: "launch",
-      splashImageUrl: `${appUrl}/splash.png`,
+      splashImageUrl: `${baseUrl}/splash.png`,
       splashBackgroundColor: "#f7f7f7",
-      webhookUrl: `${appUrl}/api/webhook`,
+      webhookUrl: `${baseUrl}/api/webhook`,
+      url: pathBasedUrl,
     },
   };
 

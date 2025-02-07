@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import sdk from "@farcaster/frame-sdk";
+import type { Metadata } from 'next';
+import { GetServerSideProps } from 'next';
+import Head from 'next/head';
 
 import Spinner from "../components/spinner";
 import { getDefaultMarkup, getPageData } from "../lib/data";
@@ -9,9 +12,72 @@ import { FixedCenterLayout } from "../views/fixed-center";
 import { RenderStaticLayout } from "../views/static-layout";
 import { Welcome } from "../views/welcome";
 
-export default function IndexPage() {
+export const revalidate = 300;
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+  // Get subdomain from host
+  const host = context.req.headers.host || '';
+  const parts = host.split('.');
+  const subdomainFromHost = parts.length > (host.includes('localhost') ? 1 : 2) ? parts[0] : '';
+
+  // Get subdomain from path
+  const path = context.req.url?.split('/')[1] || '';
+  
+  // Use either the subdomain from host or from path
+  const subdomain = subdomainFromHost || path;
+
+  // If accessing via path and not on the subdomain, redirect to subdomain
+  if (path && !subdomainFromHost && !host.includes('localhost')) {
+    return {
+      redirect: {
+        destination: `https://${path}.freecast.xyz`,
+        permanent: true,
+      },
+    };
+  }
+
+  return {
+    props: {
+      initialSubdomain: subdomain || '',
+    },
+  };
+};
+
+export async function generateMetadata({ params }: { params: { initialSubdomain: string } }): Promise<Metadata> {
+  const subdomain = params.initialSubdomain;
+  
+  const frameData = {
+    version: "next",
+    imageUrl: `https://freecast.xyz/opengraph-image.png`,
+    button: {
+      title: subdomain ? `launch ${subdomain}` : "launch",
+      action: {
+        type: "launch_frame",
+        name: subdomain || "freecast",
+        url: `https://freecast.xyz/${subdomain || ''}`,
+        splashImageUrl: `https://freecast.xyz/splash.png`,
+        splashBackgroundColor: "#000000",
+      },
+    },
+  };
+
+  return {
+    title: subdomain ? `${subdomain}.freecast.xyz` : 'freecast',
+    openGraph: {
+      title: subdomain ? `${subdomain}.freecast.xyz` : 'freecast',
+      description: subdomain ? `${subdomain}'s freecast page` : 'claim any subdomain and have fun!',
+      images: [`https://freecast.xyz/image.png`],
+    },
+    other: {
+      "fc:frame": JSON.stringify(frameData),
+    },
+  };
+}
+
+export default function IndexPage({ initialSubdomain }: { initialSubdomain: string }) {
   const [pageData, setPageData] = useState<any>();
   const [error, setError] = useState<any>();
+  const [subdomain, setSubdomain] = useState(initialSubdomain);
   const router = useRouter();
 
   useEffect(() => {
@@ -32,7 +98,6 @@ export default function IndexPage() {
         throw new Error('Failed to save page');
       }
       
-      // Update local state after successful save
       setPageData(prev => ({
         ...prev,
         html
@@ -76,9 +141,39 @@ export default function IndexPage() {
     }
   }, [pageData, router.query.edit]);
 
+  const metadata = (
+    <Head>
+      <title>{subdomain ? `${subdomain}.freecast.xyz` : 'freecast'}</title>
+      <meta property="og:title" content={subdomain ? `${subdomain}.freecast.xyz` : 'freecast'} />
+      <meta
+        property="og:description"
+        content={subdomain ? `${subdomain}'s freecast page` : 'claim any subdomain and have fun!'}
+      />
+      <meta property="og:image" content={`https://freecast.xyz/image.png`} />
+      <meta 
+        property="fc:frame" 
+        content={JSON.stringify({
+          version: "next",
+          imageUrl: `https://freecast.xyz/opengraph-image.png`,
+          button: {
+            title: subdomain ? `launch ${subdomain}` : "launch",
+            action: {
+              type: "launch_frame",
+              name: subdomain || "freecast",
+              url: `https://freecast.xyz/${subdomain || ''}`,
+              splashImageUrl: `https://freecast.xyz/splash.png`,
+              splashBackgroundColor: "#000000",
+            },
+          },
+        })} 
+      />
+    </Head>
+  );
+
   if (error) {
     return (
       <FixedCenterLayout>
+        {metadata}
         <div>
           {error.errorCode && <h1>HTTP Status: {error.errorCode}</h1>}
           <h2>{error.message}</h2>
@@ -107,6 +202,7 @@ export default function IndexPage() {
   if (typeof pageData === "undefined") {
     return (
       <FixedCenterLayout>
+        {metadata}
         <Spinner delay={300} />
       </FixedCenterLayout>
     );
@@ -115,27 +211,35 @@ export default function IndexPage() {
   if (pageData && pageData.html === null) {
     const defaultPage = getDefaultMarkup('welcome');
     return (
-      <EditorLayout
-        html={defaultPage}
-        onSave={savePage}
-      />
+      <>
+        {metadata}
+        <EditorLayout html={defaultPage} onSave={savePage} />
+      </>
     );
   }
 
   if (pageData && pageData.html && pageData.allowEdit) {
-    const defaultPage = getDefaultMarkup('welcome');
     return (
-      <EditorLayout
-        html={pageData.html}
-        onSave={savePage}
-      />
+      <>
+        {metadata}
+        <EditorLayout html={pageData.html} onSave={savePage} />
+      </>
     );
   }
 
   if (pageData && pageData.html && !pageData.allowEdit) {
-    const defaultPage = getDefaultMarkup('welcome');
-    return <RenderStaticLayout html={pageData.html} />;
+    return (
+      <>
+        {metadata}
+        <RenderStaticLayout html={pageData.html} />
+      </>
+    );
   }
 
-  return <Welcome />;
+  return (
+    <>
+      {metadata}
+      <Welcome />
+    </>
+  );
 }

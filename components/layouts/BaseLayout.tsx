@@ -1,4 +1,3 @@
-import Head from "next/head";
 import { ReactNode } from "react";
 import sdk from "@farcaster/frame-sdk";
 import { useEffect } from "react";
@@ -14,10 +13,6 @@ export default function BaseLayout({ children }: BaseLayoutProps) {
 
   return (
     <>
-      <Head>
-        <title>Freecast</title>
-        <link rel="icon" href="/favicon.ico" type="image/x-icon" />
-      </Head>
       <main>
         {children}
       </main>
