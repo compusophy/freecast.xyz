@@ -78,25 +78,46 @@ export default function IndexPage({ initialSubdomain }: { initialSubdomain: stri
   const [pageData, setPageData] = useState<any>();
   const [error, setError] = useState<any>();
   const [subdomain, setSubdomain] = useState(initialSubdomain);
+  const [frameContext, setFrameContext] = useState<any>();
   const router = useRouter();
 
   useEffect(() => {
-    sdk.actions.ready();
-    
-    // Add message listener for share button clicks
+    const initializeSDK = async () => {
+      try {
+        const context = await sdk.context;
+        setFrameContext(context);
+        sdk.actions.ready();
+      } catch (e) {
+        console.log('Not in a Frame context');
+      }
+    };
+
+    initializeSDK();
+  }, []);
+
+  useEffect(() => {
+    // Handle share button clicks
     const handleMessage = async (event: MessageEvent) => {
       if (event.data.type === 'shareToWarpcast') {
-        const page = event.data.page;
-        const shareText = encodeURIComponent(`check out my new page at ${page}.freecast.xyz`);
-        const shareUrl = encodeURIComponent(`https://${page}.freecast.xyz`);
-        const warpcastUrl = `https://warpcast.com/~/compose?text=${shareText}&embeds[]=${shareUrl}`;
-        await sdk.actions.openUrl(warpcastUrl);
+        console.log('Frame context:', frameContext); // Debug log
+        console.log('Fallback URL:', event.data.fallbackUrl); // Debug log
+        
+        if (frameContext) {
+          // In Frame context, use SDK
+          const shareText = encodeURIComponent(`check out my new page at ${event.data.page}.freecast.xyz`);
+          const shareUrl = encodeURIComponent(`https://${event.data.page}.freecast.xyz`);
+          const warpcastUrl = `https://warpcast.com/~/compose?text=${shareText}&embeds[]=${shareUrl}`;
+          await sdk.actions.openUrl(warpcastUrl);
+        } else {
+          // Not in Frame context, redirect to fallback URL
+          window.open(event.data.fallbackUrl, '_blank', 'noopener,noreferrer');
+        }
       }
     };
 
     window.addEventListener('message', handleMessage);
     return () => window.removeEventListener('message', handleMessage);
-  }, []);
+  }, [frameContext]);
 
   const savePage = async (html: string) => {
     try {
