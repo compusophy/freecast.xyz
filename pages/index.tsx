@@ -82,6 +82,20 @@ export default function IndexPage({ initialSubdomain }: { initialSubdomain: stri
 
   useEffect(() => {
     sdk.actions.ready();
+    
+    // Add message listener for share button clicks
+    const handleMessage = async (event: MessageEvent) => {
+      if (event.data.type === 'shareToWarpcast') {
+        const page = event.data.page;
+        const shareText = encodeURIComponent(`check out my new page at ${page}.freecast.xyz`);
+        const shareUrl = encodeURIComponent(`https://${page}.freecast.xyz`);
+        const warpcastUrl = `https://warpcast.com/~/compose?text=${shareText}&embeds[]=${shareUrl}`;
+        await sdk.actions.openUrl(warpcastUrl);
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
   }, []);
 
   const savePage = async (html: string) => {

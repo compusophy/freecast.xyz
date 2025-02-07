@@ -29,11 +29,6 @@ async function getPageData(href): Promise<any> {
 }
 
 function getDefaultMarkup(page: string) {
-  // Create the Warpcast share URL with the current page URL encoded
-  const shareText = encodeURIComponent(`check out my new page at ${page}.freecast.xyz`);
-  const shareUrl = encodeURIComponent(`https://${page}.freecast.xyz`);
-  const warpcastUrl = `https://warpcast.com/~/compose?text=${shareText}&embeds[]=${shareUrl}`;
-
   return `
 <div class="container">
   <h1>[${page}.*]</h1>
@@ -41,9 +36,9 @@ function getDefaultMarkup(page: string) {
     This is a blank canvas waiting to be filled with your content. Edit this page to make it your own.
     The possibilities are endless - from personal blogs to project showcases, from art galleries to code snippets.
   </p>
-  <a href="${warpcastUrl}" target="_blank" class="share-button">
+  <button onclick="window.parent.postMessage({ type: 'shareToWarpcast', page: '${page}' }, '*')" class="share-button">
     SHARE
-  </a>
+  </button>
 </div>
 
 <style>
@@ -92,6 +87,7 @@ function getDefaultMarkup(page: string) {
     border-radius: 4px;
     background: rgba(255, 255, 255, 0.05);
     transition: all 0.3s ease;
+    cursor: pointer;
   }
 
   .share-button:hover {
