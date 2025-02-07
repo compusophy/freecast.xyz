@@ -36,13 +36,13 @@ export async function GET(request: Request) {
 
     frame: {
       version: "1",
-      name: "freecast",
+      name: "freecast.xyz",
       iconUrl: `${baseUrl}/icon.png`,
       homeUrl: pathBasedUrl,
       imageUrl: `${baseUrl}/opengraph-image.png`,
       buttonTitle: "launch",
       splashImageUrl: `${baseUrl}/splash.png`,
-      splashBackgroundColor: "#f7f7f7",
+      splashBackgroundColor: "#000000",
       webhookUrl: `${baseUrl}/api/webhook`,
       url: pathBasedUrl,
     },

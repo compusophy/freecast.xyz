@@ -48,12 +48,12 @@ export async function generateMetadata({ params }: { params: { initialSubdomain:
   
   const frameData = {
     version: "next",
-    imageUrl: `https://freecast.xyz/opengraph-image?subdomain=${subdomain || ''}`,
+    imageUrl: `https://freecast.xyz/opengraph-image${subdomain ? `?subdomain=${subdomain}` : ''}`,
     button: {
-      title: subdomain ? `launch ${subdomain}` : "launch",
+      title: "launch",
       action: {
         type: "launch_frame",
-        name: subdomain || "freecast",
+        name: subdomain || "freecast.xyz",
         url: `https://freecast.xyz/${subdomain || ''}`,
         splashImageUrl: `https://freecast.xyz/splash.png`,
         splashBackgroundColor: "#000000",
@@ -62,11 +62,11 @@ export async function generateMetadata({ params }: { params: { initialSubdomain:
   };
 
   return {
-    title: subdomain ? `${subdomain}.freecast.xyz` : 'freecast',
+    title: subdomain ? `${subdomain}.freecast.xyz` : 'freecast.xyz',
     openGraph: {
-      title: subdomain ? `${subdomain}.freecast.xyz` : 'freecast',
-      description: subdomain ? `${subdomain}'s freecast page` : 'claim any subdomain and have fun!',
-      images: [`https://freecast.xyz/opengraph-image?subdomain=${subdomain || ''}`],
+      title: subdomain ? `${subdomain}.freecast.xyz` : 'freecast.xyz',
+      description: subdomain ? `${subdomain}'s freecast frame` : 'freecast frame',
+      images: [`https://freecast.xyz/opengraph-image${subdomain ? `?subdomain=${subdomain}` : ''}`],
     },
     other: {
       "fc:frame": JSON.stringify(frameData),
@@ -104,7 +104,7 @@ export default function IndexPage({ initialSubdomain }: { initialSubdomain: stri
         
         if (frameContext) {
           // In Frame context, use SDK
-          const shareText = encodeURIComponent(`check out my new page at ${event.data.page}.freecast.xyz`);
+          const shareText = encodeURIComponent(`check out this frame ${event.data.page}.freecast.xyz`);
           const shareUrl = encodeURIComponent(`https://${event.data.page}.freecast.xyz`);
           const warpcastUrl = `https://warpcast.com/~/compose?text=${shareText}&embeds[]=${shareUrl}`;
           await sdk.actions.openUrl(warpcastUrl);
@@ -178,23 +178,28 @@ export default function IndexPage({ initialSubdomain }: { initialSubdomain: stri
 
   const metadata = (
     <Head>
-      <title>{subdomain ? `${subdomain}.freecast.xyz` : 'freecast'}</title>
-      <meta property="og:title" content={subdomain ? `${subdomain}.freecast.xyz` : 'freecast'} />
+      <title>{subdomain ? `${subdomain}.freecast.xyz` : 'freecast.xyz'}</title>
+      <meta property="og:title" content={subdomain ? `${subdomain}.freecast.xyz` : 'freecast.xyz'} />
       <meta
         property="og:description"
-        content={subdomain ? `${subdomain}'s freecast page` : 'claim any subdomain and have fun!'}
+        content={subdomain ? `${subdomain}'s freecast frame` : 'freecast frame'}
       />
-      <meta property="og:image" content={`https://freecast.xyz/opengraph-image?subdomain=${subdomain || ''}`} />
+      <meta property="og:image" content={subdomain ? 
+        `https://freecast.xyz/opengraph-image?subdomain=${subdomain}` : 
+        'https://freecast.xyz/opengraph-image-home.png'
+      } />
       <meta 
         property="fc:frame" 
         content={JSON.stringify({
           version: "next",
-          imageUrl: `https://freecast.xyz/opengraph-image?subdomain=${subdomain || ''}`,
+          imageUrl: subdomain ? 
+            `https://freecast.xyz/opengraph-image?subdomain=${subdomain}` : 
+            'https://freecast.xyz/opengraph-image-home.png',
           button: {
-            title: subdomain ? `launch ${subdomain}` : "launch",
+            title: "launch",
             action: {
               type: "launch_frame",
-              name: subdomain || "freecast",
+              name: subdomain || "freecast.xyz",
               url: `https://freecast.xyz/${subdomain || ''}`,
               splashImageUrl: `https://freecast.xyz/splash.png`,
               splashBackgroundColor: "#000000",
