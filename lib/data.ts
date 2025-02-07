@@ -29,7 +29,7 @@ async function getPageData(href): Promise<any> {
 }
 
 function getDefaultMarkup(page: string) {
-  const shareText = encodeURIComponent(`check out my new page at ${page}.freecast.xyz`);
+  const shareText = encodeURIComponent(``);
   const shareUrl = encodeURIComponent(`https://${page}.freecast.xyz`);
   const warpcastUrl = `https://warpcast.com/~/compose?text=${shareText}&embeds[]=${shareUrl}`;
 

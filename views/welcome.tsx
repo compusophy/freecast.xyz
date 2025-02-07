@@ -84,7 +84,7 @@ export function Welcome() {
             height={53}
             bg={null}
             borderColor={searchState === "ERROR" ? "#ff4444" : "rgba(255, 255, 255, 0.3)"}
-            placeholder="my-fun-page"
+            placeholder=""
             width={180}
             style={{ maxWidth: "40vw" }}
           />

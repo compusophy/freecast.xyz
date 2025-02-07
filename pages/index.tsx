@@ -48,7 +48,7 @@ export async function generateMetadata({ params }: { params: { initialSubdomain:
   
   const frameData = {
     version: "next",
-    imageUrl: `https://freecast.xyz/opengraph-image.png`,
+    imageUrl: `https://freecast.xyz/opengraph-image?subdomain=${subdomain || ''}`,
     button: {
       title: subdomain ? `launch ${subdomain}` : "launch",
       action: {
@@ -66,7 +66,7 @@ export async function generateMetadata({ params }: { params: { initialSubdomain:
     openGraph: {
       title: subdomain ? `${subdomain}.freecast.xyz` : 'freecast',
       description: subdomain ? `${subdomain}'s freecast page` : 'claim any subdomain and have fun!',
-      images: [`https://freecast.xyz/image.png`],
+      images: [`https://freecast.xyz/opengraph-image?subdomain=${subdomain || ''}`],
     },
     other: {
       "fc:frame": JSON.stringify(frameData),
@@ -184,12 +184,12 @@ export default function IndexPage({ initialSubdomain }: { initialSubdomain: stri
         property="og:description"
         content={subdomain ? `${subdomain}'s freecast page` : 'claim any subdomain and have fun!'}
       />
-      <meta property="og:image" content={`https://freecast.xyz/image.png`} />
+      <meta property="og:image" content={`https://freecast.xyz/opengraph-image?subdomain=${subdomain || ''}`} />
       <meta 
         property="fc:frame" 
         content={JSON.stringify({
           version: "next",
-          imageUrl: `https://freecast.xyz/opengraph-image.png`,
+          imageUrl: `https://freecast.xyz/opengraph-image?subdomain=${subdomain || ''}`,
           button: {
             title: subdomain ? `launch ${subdomain}` : "launch",
             action: {
