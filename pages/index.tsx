@@ -3,7 +3,7 @@ import { useRouter } from "next/router";
 import sdk from "@farcaster/frame-sdk";
 
 import Spinner from "../components/spinner";
-import { defaultMarkup, getPageData } from "../lib/data";
+import { getDefaultMarkup, getPageData } from "../lib/data";
 import { EditorLayout } from "../views/editor";
 import { FixedCenterLayout } from "../views/fixed-center";
 import { RenderStaticLayout } from "../views/static-layout";
@@ -113,15 +113,17 @@ export default function IndexPage() {
   }
 
   if (pageData && pageData.html === null) {
+    const defaultPage = getDefaultMarkup('welcome');
     return (
       <EditorLayout
-        html={defaultMarkup}
+        html={defaultPage}
         onSave={savePage}
       />
     );
   }
 
   if (pageData && pageData.html && pageData.allowEdit) {
+    const defaultPage = getDefaultMarkup('welcome');
     return (
       <EditorLayout
         html={pageData.html}
@@ -131,6 +133,7 @@ export default function IndexPage() {
   }
 
   if (pageData && pageData.html && !pageData.allowEdit) {
+    const defaultPage = getDefaultMarkup('welcome');
     return <RenderStaticLayout html={pageData.html} />;
   }
 

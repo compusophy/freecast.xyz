@@ -16,7 +16,7 @@ export function EditorLayout({ html, onSave }: EditorLayoutProps) {
         <title>Static Fun</title>
         <link rel="icon" href="/favicon.ico" type="image/x-icon" />
       </Head>
-      <TopBar info />
+      <TopBar/>
       <EditorContainer html={html} onSave={onSave} />
     </Div100vh>
   );

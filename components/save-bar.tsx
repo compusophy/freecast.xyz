@@ -42,7 +42,7 @@ export default function SaveBar({
       setCurrentTime(Date.now());
       const interval = setInterval(() => {
         setCurrentTime(Date.now());
-      }, 10000);
+      }, 60000);
       setCurrentTimeInterval(interval);
 
       return () => {
@@ -51,17 +51,23 @@ export default function SaveBar({
     }
   }, [lastSaved]);
 
+  function getMinutesAgo(timestamp: number): string {
+    const minutes = Math.floor((Date.now() - timestamp) / 60000);
+    if (minutes === 1) {
+      return '1 MINUTE';
+    }
+    return `${minutes} MINUTES`;
+  }
+
   function renderButton() {
     switch (saveState) {
       case "SAVING":
         return (
           <Button
-            bg="#CDAE8F"
+            disabled
+            fontSize={24}
             width={80}
             height={36}
-            fontSize={24}
-            disabled
-            isLoading
           >
             ⏳
           </Button>
@@ -69,7 +75,7 @@ export default function SaveBar({
       case "ERROR":
         return (
           <Button
-            bg="#000000"
+            bg="rgba(255, 68, 68, 0.1)"
             width={80}
             height={36}
             fontSize={24}
@@ -80,17 +86,20 @@ export default function SaveBar({
         );
       case "SUCCESS":
         return (
-          <Button bg="#0085FF" width={80} height={36} fontSize={24} disabled>
-            🎉
+          <Button 
+            width={80} 
+            height={36} 
+            fontSize={24} 
+            disabled
+          >
+            ✓
           </Button>
         );
       default:
         return (
           <Button
-            fontFamily="Menlo, monospace"
             width={80}
             height={36}
-            bg="#FF0080"
             fontSize={14}
             onClick={savePage}
           >
@@ -102,11 +111,9 @@ export default function SaveBar({
 
   function renderLastSaved() {
     if (lastSaved) {
-      return `Last saved ${ms((currentTime || Date.now()) - lastSaved, {
-        long: true
-      })} ago`;
+      return `LAST SAVE ${getMinutesAgo(lastSaved)} AGO`;
     } else {
-      return null;
+      return 'LAST SAVE 0 MINUTES AGO';
     }
   }
 
@@ -120,17 +127,17 @@ export default function SaveBar({
         .save-bar-container {
           padding: 16px;
           height: 48px;
-          background: #2bbaf8;
+          background: #0a0a0f;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.15);
           display: flex;
           align-items: center;
           justify-content: space-between;
         }
         .save-bar-container p {
-          font-family: Menlo, monospace;
+          font-family: "JetBrains Mono", "Courier New", monospace;
           font-size: 14px;
-          color: white;
-          font-weight: bold;
-          cursor: pointer;
+          color: rgba(255, 255, 255, 0.9);
+          font-weight: normal;
         }
         .edit-link-and-save {
           display: flex;

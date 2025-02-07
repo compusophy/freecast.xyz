@@ -7,14 +7,22 @@ const Input = function({ width, height, bg, color, borderColor, ...props }) {
           display: inline-block;
         }
         input {
-          border-radius: 5px;
-          font-family: "Comic Sans", "Comic Sans MS", "Chalkboard",
-            "ChalkboardSE-Regular", monospace;
-          font-size: 18px;
-          padding: 8px;
+          border-radius: 4px;
+          font-family: "JetBrains Mono", "Courier New", monospace;
+          font-size: 16px;
+          padding: 8px 12px;
+          background: rgba(255, 255, 255, 0.05);
+          color: rgba(255, 255, 255, 0.9);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          transition: all 0.3s ease;
+        }
+        input:focus {
+          outline: none;
+          border-color: rgba(255, 255, 255, 0.5);
+          box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
         }
         input::placeholder {
-          color: #cccccc;
+          color: rgba(255, 255, 255, 0.3);
         }
       `}</style>
       <style jsx>{`
@@ -22,7 +30,7 @@ const Input = function({ width, height, bg, color, borderColor, ...props }) {
           ${bg ? "background: " + bg + ";" : ""}
           height: ${height || "48"}px;
           width: ${width || "286"}px;
-          border: 1px solid ${borderColor ? borderColor : "#cccccc"};
+          border-color: ${borderColor ? borderColor : "rgba(255, 255, 255, 0.2)"};
           ${color ? "color: " + color + ";" : ""}
         }
       `}</style>

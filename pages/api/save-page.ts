@@ -6,12 +6,11 @@ const client = new Client({
   secret: process.env.FAUNADB_STATIC_FUN_KEY
 });
 
-const {
-  NEXT_PUBLIC_PUSHER_APP_ID: appId,
-  NEXT_PUBLIC_PUSHER_KEY: key,
-  NEXT_PUBLIC_PUSHER_SECRET: secret,
-  NEXT_PUBLIC_PUSHER_CLUSTER: cluster
-} = process.env;
+// Add type assertions to ensure these are strings
+const appId = process.env.NEXT_PUBLIC_PUSHER_APP_ID as string;
+const key = process.env.NEXT_PUBLIC_PUSHER_KEY as string;
+const secret = process.env.NEXT_PUBLIC_PUSHER_SECRET as string;
+const cluster = process.env.NEXT_PUBLIC_PUSHER_CLUSTER as string;
 
 const pusher = new Pusher({
   appId,

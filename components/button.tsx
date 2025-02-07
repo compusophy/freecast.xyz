@@ -23,33 +23,39 @@ export default function Button({
 }) {
   return (
     <button {...rest}>
-      {children || "$$$"}
+      {children}
       <style jsx>{`
         button {
-          color: white;
-          border: none;
-          border-radius: 5px;
+          color: rgba(255, 255, 255, 0.9);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          border-radius: 4px;
           cursor: pointer;
           text-decoration: none;
+          font-family: "JetBrains Mono", "Courier New", monospace;
+          background: rgba(255, 255, 255, 0.05);
+          transition: all 0.3s ease;
+          margin-left: 8px;
+        }
+        button:hover:not(:disabled) {
+          border-color: rgba(255, 255, 255, 0.5);
+          box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+        }
+        button:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
         }
         @media (max-width: 500px) {
           button {
-            font-size: 12px;
+            font-size: 14px;
           }
         }
       `}</style>
       <style jsx>{`
         button {
-          background: ${bg || "inherit"};
-          font-size: ${fontSize || "18"}px;
-          font-family: ${fontFamily
-            ? fontFamily
-            : '"San Francisco", Helvetica, sans-serif'};
-          width: ${width || "83"}px;
+          background: ${bg || "rgba(255, 255, 255, 0.05)"};
+          font-size: ${fontSize || "16"}px;
+          width: ${width || "53"}px;
           height: ${height || "53"}px;
-        }
-        button:disabled {
-          cursor: ${isLoading ? "not-allowed" : "pointer"};
         }
       `}</style>
     </button>

@@ -20,13 +20,15 @@ export function RenderStaticLayout({ html }) {
       (!isDev && splitHost.length === 3)
     ) {
       pageName = splitHost[0];
-      if (pageName) {
-        const pusher = new Pusher(process.env.PUSHER_APP_KEY, {
+      if (pageName && process.env.NEXT_PUBLIC_PUSHER_APP_KEY) {
+        const pusher = new Pusher(process.env.NEXT_PUBLIC_PUSHER_APP_KEY!, {
           cluster: "mt1"
         });
         const channel = pusher.subscribe(pageName);
         channel.bind("hydrate-html", hydrateHtml);
         console.log(channel);
+      } else {
+        console.warn('Missing Pusher app key in environment variables');
       }
     }
   }, []);

@@ -46,25 +46,25 @@ export function Welcome() {
     switch (searchState) {
       case "SEARCHING":
         return (
-          <Button bg="#cdae8f" disabled fontSize={32}>
+          <Button disabled fontSize={24}>
             ⏳
           </Button>
         );
       case "ERROR":
         return (
-          <Button bg="#f3424d" disabled fontSize={32}>
+          <Button bg="rgba(255, 68, 68, 0.1)" disabled fontSize={24}>
             →
           </Button>
         );
       case "NETWORK_ERROR":
         return (
-          <Button bg="#000000" onClick={checkIfPageExists} fontSize={24}>
+          <Button bg="rgba(255, 68, 68, 0.1)" onClick={checkIfPageExists} fontSize={24}>
             ❌
           </Button>
         );
       default:
         return (
-          <Button bg="#9b51e0" onClick={checkIfPageExists} fontSize={32}>
+          <Button onClick={checkIfPageExists} fontSize={24}>
             →
           </Button>
         );
@@ -79,38 +79,21 @@ export function Welcome() {
       </Head>
       <TopBar grayScale={Boolean(pageExists)} />
       <div className="welcome-container">
-        <div className="welcome">
-          <h1>Welcome to</h1>
-          <div>
-            <span className="static">static</span>
-            <span className="fun">.fun</span>
-          </div>
-          <p>
-            An{" "}
-            <a href="https://github.com/vercel/static-fun" target="_blank">
-              open source project
-            </a>{" "}
-            to demonstrate Vercel's support of{" "}
-            <a href="https://vercel.com/blog/wildcard-domains" target="_blank">
-              wildcard domains
-            </a>
-          </p>
-        </div>
-        <h2>To start go to</h2>
         <form className="form" onSubmit={checkIfPageExists}>
           <Input
             required
-            color="#9b51e0"
+            autoFocus
+            color="#fff"
             value={pageToSearch}
             onChange={pageSearchInputHandler}
             height={53}
             bg={null}
-            borderColor={searchState === "ERROR" ? "#f3424d" : null}
+            borderColor={searchState === "ERROR" ? "#ff4444" : "rgba(255, 255, 255, 0.3)"}
             placeholder="my-fun-page"
             width={180}
             style={{ maxWidth: "40vw" }}
           />
-          <span className="suffix">.static.fun</span>
+          <span className="suffix">.freecast.xyz</span>
           {renderButton()}
         </form>
         {errorMessage && <p className="error-message">{errorMessage}</p>}
@@ -121,136 +104,43 @@ export function Welcome() {
             Try another one.
           </p>
         )}
-        <div className="emojis" />
-        <div className="powered-by">
-          Powered by{"  "}
-          <a href="https://nextjs.org" target="_blank">
-            Next.js
-          </a>
-          ,{" "}
-          <a href="https://fauna.com" target="_blank">
-            FaunaDB
-          </a>
-          ,{" "}
-          <a href="https://pusher.com/channels" target="_blank">
-            Pusher Channels
-          </a>
-          , and hosted with <a href="https://vercel.com">Vercel</a>
-        </div>
       </div>
       <style jsx>{`
-          .welcome-container {
+        .welcome-container {
           display: flex;
           height: calc(100% - 50px);
           flex-direction: column;
           align-items: center;
-        }
-        .welcome {
-          flex: 1 0 300px;
-          padding: 30px 0 15px;
-          width: 100%;
-          text-align: center;
-          display: flex;
-          flex-direction: column;
           justify-content: center;
-        }
-        .welcome span {
-          font-weight: bold;
-          font-size: 64px;
-        }
-        .welcome .static {
-          color: #9b51e0;
-        }
-        .welcome .fun {
-          font-family: "Comic Sans", "Comic Sans MS", "Chalkboard",
-            "ChalkboardSE-Regular", monospace;
-        }
-        .welcome p {
-          margin: 32px auto 0;
-          padding: 0 15px;
-          width: 650px;
-          max-width: 100%;
-          font-size: 14px;
-          line-height: 28px;
-          text-align: center;
-          font-family: Menlo, monospace;
-        }
-        .welcome a {
-          font-weight: bold;
-          color: black;
+          background: #0a0a0f;
+          color: rgba(255, 255, 255, 0.9);
         }
         .form {
-          flex: 0;
           display: flex;
           align-items: center;
           text-align: center;
-          margin-top: 15px;
-          margin-bottom: 15px;
           white-space: nowrap;
           min-height: 50px;
-        }
-        .form h2 {
-          margin-bottom: 16px;
+          margin-bottom: 20px;
         }
         .form .suffix {
-          font-family: "Comic Sans", "Comic Sans MS", "Chalkboard",
-            "ChalkboardSE-Regular", monospace;
-          font-weight: bold;
+          font-family: "JetBrains Mono", "Courier New", monospace;
+          font-weight: normal;
           font-size: 18px;
           margin-left: 4px;
           margin-right: 8px;
+          color: rgba(255, 255, 255, 0.75);
         }
-
         .page-exists,
         .error-message {
-          color: red;
+          color: #ff4444;
           margin-top: 8px;
-          font-family: Menlo, monospace;
+          font-family: "JetBrains Mono", "Courier New", monospace;
           text-transform: uppercase;
+          text-shadow: 0 0 10px rgba(255, 68, 68, 0.3);
         }
         .page-exists a {
-          color: red;
-        }
-        .emojis {
-          flex: 0 1 660px;
-          width: 100%;
-          background-image: url("/emoji-bg.png");
-          background-repeat: repeat-x;
-          background-size: auto 85%;
-          background-position: bottom;
-          pointer-events: none;
-        }
-        .powered-by {
-          padding: 8px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          text-align: center;
-          position: fixed: 
-          bottom: 0;
-          width: 100%;
-          height: 80px;
-          color: white;
-          background: #0085ff;
-	}
-	
-	.powered-by a {
-          color: white;
-	  font-weight: bold;  
-	  margin-left: 8px;
-        }
-	  
-        @media (max-width: 899px) {
-	    .powered-by {
-		display: none;
-        }
-}
-
-      `}</style>
-      <style jsx>{`
-        .welcome,
-        .emojis {
-          filter: ${pageExists ? "grayscale(1)" : "none"};
+          color: #ff4444;
         }
       `}</style>
     </Div100vh>

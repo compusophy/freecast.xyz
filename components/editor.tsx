@@ -35,7 +35,8 @@ export default function EditorContainer({ html, onSave }: EditorContainerProps) 
           height: 100%;
           width: 100%;
           flex: 1 0 50%;
-          background: #222222;
+          background: #0a0a0f;
+          border-right: 1px solid rgba(255, 255, 255, 0.3);
         }
         .output-container {
           flex: 1 0 50%;
@@ -44,6 +45,7 @@ export default function EditorContainer({ html, onSave }: EditorContainerProps) 
           -webkit-overflow-scrolling: touch;
           overflow-y: scroll;
           font-size: 0;
+          background: #0a0a0f;
         }
         @media (max-width: 500px) {
           .root-editor-container {
@@ -53,6 +55,8 @@ export default function EditorContainer({ html, onSave }: EditorContainerProps) 
             flex: 1 0 50%;
             height: 50%;
             order: 1;
+            border-right: none;
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
           }
           .output-container {
             flex: 1 0 50%;
@@ -100,9 +104,9 @@ function Editor({ html, setHtml, onSave }: EditorProps) {
           -webkit-appearance: none;
           width: 100%;
           height: calc(100% - 48px);
-          background: #222222;
-          color: #fff;
-          font-family: Menlo, monospace;
+          background: #0a0a0f;
+          color: rgba(255, 255, 255, 0.9);
+          font-family: "JetBrains Mono", "Courier New", monospace;
           font-size: 16px;
           padding: 24px;
           border: none;

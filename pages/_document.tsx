@@ -11,16 +11,16 @@ import {
 import { type ReactElement } from "react";
 
 export default function Document(_props: DocumentProps): ReactElement {
-  const dynamicFrame = {
+  const defaultFrame = {
     version: "next",
-    imageUrl: `https://freecast.xyz/opengraph-image`,
+    imageUrl: "https://freecast.xyz/opengraph-image.png",
     button: {
       title: "launch",
       action: {
         type: "launch_frame",
         name: "freecast",
-        url: "https://freecast.xyz/",
-        splashImageUrl: `https://freecast.xyz/splash.png`,
+        url: "https://freecast.xyz",
+        splashImageUrl: "https://freecast.xyz/splash.png",
         splashBackgroundColor: "#000000",
       },
     },
@@ -35,7 +35,7 @@ export default function Document(_props: DocumentProps): ReactElement {
           content="claim any subdomain and have fun!"
         />
         <meta property="og:image" content="https://freecast.xyz/image.png" />
-        <meta property="fc:frame" content={JSON.stringify(dynamicFrame)} />
+        <meta property="fc:frame" content={JSON.stringify(defaultFrame)} />
       </Head>
       <body>
         <Main />
