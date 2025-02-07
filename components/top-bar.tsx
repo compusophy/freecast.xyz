@@ -13,7 +13,7 @@ export default function TopBar({ grayScale }: { grayScale?: boolean }) {
         </a>
       </div>
       <div className="view-source">
-        <a href="https://github.com/compusophy/freecast" target="_blank">
+        <a href="https://github.com/compusophy/freecast.xyz" target="_blank">
           <p>[SOURCE]</p>
           <div>
             <GitHub />
