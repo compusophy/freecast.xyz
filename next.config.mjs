@@ -5,15 +5,15 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true
   },
-  transpilePackages: [
-    "@farcaster/frame-wagmi-connector",
-    "@farcaster/frame-sdk",
-    "wagmi",
-    "viem"
-  ],
+  webpack: (config) => {
+    config.resolve.extensionAlias = {
+      '.js': ['.js', '.ts', '.tsx']
+    }
+    return config
+  },
   experimental: {
-    esmExternals: false
+    esmExternals: 'loose'
   }
 };
 
-module.exports = nextConfig;
+export default nextConfig; 

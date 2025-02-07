@@ -1,21 +1,41 @@
-import { Html, Head, Main, NextScript } from "next/document";
+/* eslint-disable sort-keys-fix/sort-keys-fix */
+/* eslint-disable react/jsx-sort-props */
+/* eslint-disable react/function-component-definition */
+import {
+  Html,
+  Head,
+  Main,
+  NextScript,
+  type DocumentProps,
+} from "next/document";
+import { type ReactElement } from "react";
 
-export default function Document(props) {
+export default function Document(_props: DocumentProps): ReactElement {
+  const dynamicFrame = {
+    version: "next",
+    imageUrl: `https://freecast.xyz/opengraph-image`,
+    button: {
+      title: "launch",
+      action: {
+        type: "launch_frame",
+        name: "freecast",
+        url: "https://freecast.xyz/",
+        splashImageUrl: `https://freecast.xyz/splash.png`,
+        splashBackgroundColor: "#000000",
+      },
+    },
+  };
+
   return (
-    <Html lang="en">
+    <Html lang="en" style={{ background: "#000000" }}>
       <Head>
-        <meta name="description" content="claim any subdomain and have fun!" />
-        <meta property="og:title" content="Static Fun" />
+        <meta property="og:title" content="freecast" />
         <meta
           property="og:description"
           content="claim any subdomain and have fun!"
         />
-        <meta
-          property="og:image"
-          content="https://www.static.fun/twitter-card.png"
-        />
-        <meta property="og:url" content="https://www.static.fun" />
-        <meta name="twitter:card" content="summary_large_image" />
+        <meta property="og:image" content="https://freecast.xyz/image.png" />
+        <meta property="fc:frame" content={JSON.stringify(dynamicFrame)} />
       </Head>
       <body>
         <Main />

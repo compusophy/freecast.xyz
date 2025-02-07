@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/router";
+import sdk from "@farcaster/frame-sdk";
 
 import Spinner from "../components/spinner";
 import { defaultMarkup, getPageData } from "../lib/data";
@@ -12,6 +13,10 @@ export default function IndexPage() {
   const [pageData, setPageData] = useState<any>();
   const [error, setError] = useState<any>();
   const router = useRouter();
+
+  useEffect(() => {
+    sdk.actions.ready();
+  }, []);
 
   const savePage = async (html: string) => {
     try {
