@@ -54,7 +54,7 @@ export async function generateMetadata({ params }: { params: { initialSubdomain:
       action: {
         type: "launch_frame",
         name: subdomain || "freecast.xyz",
-        url: `https://freecast.xyz/${subdomain || ''}`,
+        url: `https://${subdomain}.freecast.xyz/`,
         splashImageUrl: `https://freecast.xyz/splash.png`,
         splashBackgroundColor: "#000000",
       },
@@ -111,6 +111,11 @@ export default function IndexPage({ initialSubdomain }: { initialSubdomain: stri
         } else {
           // Not in Frame context, redirect to fallback URL
           window.open(event.data.fallbackUrl, '_blank', 'noopener,noreferrer');
+        }
+      } else if (event.data.type === 'viewProfile') {
+        if (frameContext) {
+          // In Frame context, use SDK
+          await sdk.actions.viewProfile({ fid: event.data.fid });
         }
       }
     };
@@ -200,7 +205,7 @@ export default function IndexPage({ initialSubdomain }: { initialSubdomain: stri
             action: {
               type: "launch_frame",
               name: subdomain || "freecast.xyz",
-              url: `https://freecast.xyz/${subdomain || ''}`,
+              url: `https://${subdomain}.freecast.xyz/`,
               splashImageUrl: `https://freecast.xyz/splash.png`,
               splashBackgroundColor: "#000000",
             },

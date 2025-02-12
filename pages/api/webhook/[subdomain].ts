@@ -7,8 +7,8 @@ import {
 import {
   deleteUserNotificationDetails,
   setUserNotificationDetails,
-} from "../../lib/kv";
-import { sendFrameNotification } from "../../lib/notifs";
+} from "../../../lib/kv";
+import { sendFrameNotification } from "../../../lib/notifs";
 
 export default async function handler(
   req: NextApiRequest,
@@ -18,11 +18,15 @@ export default async function handler(
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  console.log('Raw webhook request:', {
-    body: req.body,
-    headers: req.headers,
-    url: req.url
-  });
+  // Get subdomain from path parameter
+  const { subdomain } = req.query;
+  
+  if (!subdomain || typeof subdomain !== 'string') {
+    return res.status(400).json({ 
+      success: false, 
+      error: "No subdomain specified" 
+    });
+  }
 
   let data;
   try {
@@ -50,36 +54,18 @@ export default async function handler(
     }
   }
 
-  // Extract subdomain from the frame URL in the webhook data
-  const frameUrl = data.event.frameActionBody?.url || '';
-  console.log('Frame URL:', frameUrl);
-  
-  let subdomain = '';
-  if (frameUrl) {
-    const urlParts = new URL(frameUrl).hostname.split('.');
-    if (urlParts.length > 2) {
-      subdomain = urlParts[0];
-    }
-  }
-
-  console.log('Webhook details:', {
-    frameUrl,
-    extractedSubdomain: subdomain,
-    host: req.headers.host,
-  });
-
   const fid = data.fid;
   const event = data.event;
 
   switch (event.event) {
     case "frame_added":
       if (event.notificationDetails) {
-        await setUserNotificationDetails(fid, event.notificationDetails, subdomain);
+        await setUserNotificationDetails(fid, event.notificationDetails);
         await sendFrameNotification({
           fid,
-          title: subdomain ? `Welcome to ${subdomain}` : "Welcome to Freecast",
+          title: "Welcome to subFreecast",
           body: "Frame is now added to your client",
-          subdomain: subdomain || '',
+          subdomain,
         });
       } else {
         await deleteUserNotificationDetails(fid);
@@ -96,7 +82,7 @@ export default async function handler(
         fid,
         title: "Notifications Enabled",
         body: "You'll now receive updates from Freecast",
-        subdomain: subdomain || '',
+        subdomain,
       });
       break;
 

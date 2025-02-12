@@ -40,16 +40,27 @@ function getDefaultMarkup(page: string) {
     This is a blank canvas waiting to be filled with your content. Edit this page to make it your own.
     The possibilities are endless - from personal blogs to project showcases, from art galleries to code snippets.
   </p>
-  <button 
-    onclick="window.parent.postMessage({ 
-      type: 'shareToWarpcast', 
-      page: '${page}',
-      fallbackUrl: '${warpcastUrl}'
-    }, '*')" 
-    class="share-button"
-  >
-    SHARE
-  </button>
+  <div class="button-group">
+    <button 
+      onclick="window.parent.postMessage({ 
+        type: 'shareToWarpcast', 
+        page: '${page}',
+        fallbackUrl: '${warpcastUrl}'
+      }, '*')" 
+      class="action-button"
+    >
+      SHARE
+    </button>
+    <button 
+      onclick="window.parent.postMessage({ 
+        type: 'viewProfile',
+        fid: '350911'
+      }, '*')" 
+      class="action-button"
+    >
+      PROFILE
+    </button>
+  </div>
 </div>
 
 <style>
@@ -88,7 +99,13 @@ function getDefaultMarkup(page: string) {
     font-size: 14px;
   }
 
-  .share-button {
+  .button-group {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+  }
+
+  .action-button {
     display: inline-block;
     color: rgba(255, 255, 255, 0.9);
     text-decoration: none;
@@ -101,7 +118,7 @@ function getDefaultMarkup(page: string) {
     cursor: pointer;
   }
 
-  .share-button:hover {
+  .action-button:hover {
     border-color: rgba(255, 255, 255, 0.5);
     box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
   }

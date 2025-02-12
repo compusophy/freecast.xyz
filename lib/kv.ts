@@ -1,9 +1,11 @@
 import { type FrameNotificationDetails } from "@farcaster/frame-sdk";
 import { ref, get, set, remove } from "firebase/database";
-import { db } from "../lib/firebase";
+import { db } from "./firebase";
 
-// Simple in-memory storage for demo
-const userNotificationStore = new Map();
+// Extended type that includes subdomain
+type StoredNotificationDetails = FrameNotificationDetails & {
+  subdomain?: string;
+};
 
 function getUserNotificationDetailsKey(fid: number): string {
   return `compusophy/users/${fid}/notifications`;
@@ -11,15 +13,24 @@ function getUserNotificationDetailsKey(fid: number): string {
 
 export async function getUserNotificationDetails(
   fid: number
-): Promise<FrameNotificationDetails | null> {
+): Promise<StoredNotificationDetails | null> {
   const snapshot = await get(ref(db, getUserNotificationDetailsKey(fid)));
-  return snapshot.val() as FrameNotificationDetails | null;
+  return snapshot.val() as StoredNotificationDetails | null;
 }
 
-export async function setUserNotificationDetails(fid: number, details: any) {
-  userNotificationStore.set(fid, details);
+export async function setUserNotificationDetails(
+  fid: number,
+  notificationDetails: FrameNotificationDetails,
+  subdomain?: string
+): Promise<void> {
+  await set(ref(db, getUserNotificationDetailsKey(fid)), {
+    ...notificationDetails,
+    subdomain
+  });
 }
 
-export async function deleteUserNotificationDetails(fid: number) {
-  userNotificationStore.delete(fid);
+export async function deleteUserNotificationDetails(
+  fid: number
+): Promise<void> {
+  await remove(ref(db, getUserNotificationDetailsKey(fid)));
 }
